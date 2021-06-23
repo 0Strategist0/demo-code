@@ -1,0 +1,17 @@
+shader_type canvas_item;
+
+uniform float time_since_start;
+uniform vec2 wave_uv;
+
+vec2 distort(float time, vec2 pixelSize, vec2 uv, vec2 originUv) {
+	vec2 coord = uv / pixelSize;
+	vec2 origin = originUv / pixelSize;
+	vec2 waveNormal = normalize(coord - origin);
+	float logOfTime = log(time);
+	return pow(0.5, pow(((0.1 / (1.0 + logOfTime)) * distance(coord, origin) - time), 2.0)) * waveNormal / (5.0 * logOfTime + 10.0);
+}
+
+void fragment() {
+	vec2 distortion = distort(10.0 * time_since_start + 1.0, TEXTURE_PIXEL_SIZE, UV, wave_uv);
+	COLOR.rgb = pow(texture(TEXTURE, UV - distortion).rgb, vec3(1.0 - (5.0 * length(distortion))));
+}
